@@ -1,29 +1,40 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-
+    
     //Created a 2D Matrix of Int to hold the values of Button from the Arena.
-    public static int[,] aArenaMatrix = new int[GameSettings.iMvalue, GameSettings.iNvalue];
+    private int[,] aArenaMatrixTemp = new int[GameSettings.iMvalue, GameSettings.iNvalue];
+
+    ///Globals
+    //Which Player playing next
+    public static int[,] aArenaMatrix;
+    public static int iPlayerTurn = 1;
+
+    //Game Win Bool
+    public static bool GameWin = false;
 
     //The total Number of Buttons Required. //Deprecated!
-    int iTotalButtons = GameSettings.iMvalue * GameSettings.iNvalue;
+    //int iTotalButtons = GameSettings.iMvalue * GameSettings.iNvalue;
 
     //Public Variables accessible in the editor
     public GameObject goButtonPrefab;
     public GameObject goArenaPanel;
+    public GameObject goRedTurn;
+    public GameObject goBlueTurn;
 
 
-    //*Private Variables.
-    //Which Player playing next
-    public static int iPlayerTurn = 1;
 
     // Use this for initialization
     void Start () {
+
+        aArenaMatrix = aArenaMatrixTemp;
 
         //Calculate Grid Cell dimension values to be set.
         float GridX = 512 / GameSettings.iNvalue;
@@ -34,6 +45,7 @@ public class GameManager : MonoBehaviour
 
         //Temporary variable to store game object instantiated.
         GameObject goPrefab;
+
 
         //Instantiate the button prefabs and set their parent to the Arena Panel to include them in the grid.
         for(int iM=0; iM < GameSettings.iMvalue; iM++)
@@ -49,12 +61,40 @@ public class GameManager : MonoBehaviour
 
     // Update is called once per frame
     void Update () {
-        //Debug.Log(EventSystem.current.currentSelectedGameObject.);    //Deprecated
+
+        //SetActive Turn Text. & Game Winner
+        if(iPlayerTurn==1)
+        {
+            goBlueTurn.SetActive(false);
+            goRedTurn.SetActive(true);
+            if (GameWin)
+            {
+                goRedTurn.GetComponent<TextMeshProUGUI>().text = "LOSER";
+                goBlueTurn.GetComponent<TextMeshProUGUI>().text = "WINNER";
+                goRedTurn.SetActive(true);
+                goBlueTurn.SetActive(true);
+            }
+        }
+        else
+        {
+            goRedTurn.SetActive(false);
+            goBlueTurn.SetActive(true);
+            if (GameWin)
+            {
+                goRedTurn.GetComponent<TextMeshProUGUI>().text = "WINNER";
+                goBlueTurn.GetComponent<TextMeshProUGUI>().text = "LOSER";
+                goRedTurn.SetActive(true);
+                goBlueTurn.SetActive(true);
+            }
+        }
+
 	}
 
     //Check if player Wins after every turn end.
     public static void CheckWin(int iM, int iN)
     {
+
+
         //Check Win Variables
         int isum = 1;
         int icurrentValue = 0;
@@ -105,6 +145,7 @@ public class GameManager : MonoBehaviour
         //Check Win
         if (isum==GameSettings.iWinValue)
         {
+            GameWin = true;
             Debug.Log("Player " + iPlayerTurn + " Wins with " + isum + " in a row" );
         }
 
@@ -147,6 +188,7 @@ public class GameManager : MonoBehaviour
         //Check Win
         if (isum == GameSettings.iWinValue)
         {
+            GameWin = true;
             Debug.Log("Player " + iPlayerTurn + " Wins with " + isum + " in a column");
         }
 
@@ -194,6 +236,7 @@ public class GameManager : MonoBehaviour
         //Check Win
         if (isum == GameSettings.iWinValue)
         {
+            GameWin = true;
             Debug.Log("Player " + iPlayerTurn + " Wins with " + isum + " in a Diagonal L-R");
         }
 
@@ -242,15 +285,37 @@ public class GameManager : MonoBehaviour
         //Check Win
         if (isum == GameSettings.iWinValue)
         {
+            GameWin = true;
             Debug.Log("Player " + iPlayerTurn + " Wins with " + isum + " in a Diagonal R-L");
         }
 
 
         //Change Turn
         if (iPlayerTurn == 1)
-        { iPlayerTurn = 2; }
+        {
+            iPlayerTurn = 2;
+        }
         else
-        { iPlayerTurn = 1; }
+        {
+            iPlayerTurn = 1;
+        }
     }
-    
+
+    public void RestartLevel()
+    {
+        GameWin = false;
+        SceneManager.LoadScene("002_GameScene");
+    }
+
+    public void SettingsLevel()
+    {
+        GameWin = false;
+        SceneManager.LoadScene("001_MainMenu");
+    }
+
+    public void ExitLevel()
+    {
+        Application.Quit();
+    }
+
 }

@@ -40,4 +40,9 @@ public class GameSettings : MonoBehaviour {
         //Start Game
         SceneManager.LoadScene("002_GameScene");
     }
+
+    public void ExitLevel()
+    {
+        Application.Quit();
+    }
 }

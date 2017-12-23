@@ -16,7 +16,6 @@ public class ButtonPrefab : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        Debug.Log(GameSettings.iMvalue);
     }
 	
 	// Update is called once per frame
@@ -26,31 +25,35 @@ public class ButtonPrefab : MonoBehaviour {
 
     public void onClickThis()
     {
-        //Get the the position of the child being clicked in the Grid.
-        goChild = transform.gameObject;
-        iButtonSiblingIndex = goChild.transform.GetSiblingIndex();
-
-        //Get Matrix Position of the Child in the Grid
-        iM = iButtonSiblingIndex / GameSettings.iNvalue;
-        iN = iButtonSiblingIndex - (iM * GameSettings.iNvalue);
-
-        
-
-        btChildButton = goChild.GetComponent<Button>();
-
-        btChildButton.interactable = false;
-
-        if(GameManager.iPlayerTurn==1)
+        if (!GameManager.GameWin)
         {
-            btChildButton.image.color = Color.red;
-        }
-        else
-        {
-            btChildButton.image.color = Color.blue;
+            //Get the the position of the child being clicked in the Grid.
+            goChild = transform.gameObject;
+            iButtonSiblingIndex = goChild.transform.GetSiblingIndex();
+
+            //Get Matrix Position of the Child in the Grid
+            iM = iButtonSiblingIndex / GameSettings.iNvalue;
+            iN = iButtonSiblingIndex - (iM * GameSettings.iNvalue);
+
+            //Disable Button on Click.
+            btChildButton = goChild.GetComponent<Button>();
+            btChildButton.interactable = false;
+
+            if (GameManager.iPlayerTurn == 1)
+            {
+                btChildButton.image.color = Color.red;
+            }
+            else
+            {
+                btChildButton.image.color = Color.blue;
+            }
+
+            if (!GameManager.GameWin)
+            {
+                //Call static Check Win Event.
+                GameManager.CheckWin(iM, iN);
+            }
         }
         
-
-        //Call static Check Win Event.
-        GameManager.CheckWin(iM, iN);
     }
 }
