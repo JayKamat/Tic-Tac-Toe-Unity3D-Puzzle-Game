@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
     
     //Created a 2D Matrix of Int to hold the values of Button from the Arena.
     private int[,] aArenaMatrixTemp = new int[GameSettings.iMvalue, GameSettings.iNvalue];
+    //Game Finish bool
+    private bool bDone = false;
 
     ///Globals
     //Which Player playing next
@@ -19,9 +21,11 @@ public class GameManager : MonoBehaviour
 
     //Game Win Bool
     public static bool GameWin = false;
+    //Game Finish Check
+    public static int iTotalClickedButtons=0;
 
-    //The total Number of Buttons Required. //Deprecated!
-    //int iTotalButtons = GameSettings.iMvalue * GameSettings.iNvalue;
+    //The total Number of Buttons Required.
+    int iTotalButtons = GameSettings.iMvalue * GameSettings.iNvalue;
 
     //Public Variables accessible in the editor
     public GameObject goButtonPrefab;
@@ -29,12 +33,16 @@ public class GameManager : MonoBehaviour
     public GameObject goRedTurn;
     public GameObject goBlueTurn;
 
-
+    //Sound Effects
+    public AudioSource WinSound;
+    public AudioSource asSoundEffects;
 
     // Use this for initialization
     void Start () {
 
+        //Assigning to Static Function
         aArenaMatrix = aArenaMatrixTemp;
+        iTotalClickedButtons = 0;
 
         //Calculate Grid Cell dimension values to be set.
         float GridX = 512 / GameSettings.iNvalue;
@@ -57,34 +65,58 @@ public class GameManager : MonoBehaviour
                 aArenaMatrix[iM, iN] = 0;
             }
         }
+
     }
 
     // Update is called once per frame
     void Update () {
+        if (!bDone)
+        {
+            //SetActive Turn Text. & Game Winner
+            if (iPlayerTurn == 1)
+            {
+                goBlueTurn.SetActive(false);
+                goRedTurn.SetActive(true);
+                if (GameWin)
+                {
 
-        //SetActive Turn Text. & Game Winner
-        if(iPlayerTurn==1)
-        {
-            goBlueTurn.SetActive(false);
-            goRedTurn.SetActive(true);
-            if (GameWin)
-            {
-                goRedTurn.GetComponent<TextMeshProUGUI>().text = "LOSER";
-                goBlueTurn.GetComponent<TextMeshProUGUI>().text = "WINNER";
-                goRedTurn.SetActive(true);
-                goBlueTurn.SetActive(true);
+                    WinSound.Play();
+                    goRedTurn.GetComponent<TextMeshProUGUI>().text = "LOSER";
+                    goBlueTurn.GetComponent<TextMeshProUGUI>().text = "WINNER";
+                    goRedTurn.SetActive(true);
+                    goBlueTurn.SetActive(true);
+                    bDone = true;
+
+                }
             }
-        }
-        else
-        {
-            goRedTurn.SetActive(false);
-            goBlueTurn.SetActive(true);
-            if (GameWin)
+            else
             {
-                goRedTurn.GetComponent<TextMeshProUGUI>().text = "WINNER";
-                goBlueTurn.GetComponent<TextMeshProUGUI>().text = "LOSER";
+                goRedTurn.SetActive(false);
+                goBlueTurn.SetActive(true);
+                if (GameWin)
+                {
+                    
+                     WinSound.Play();
+                     goRedTurn.GetComponent<TextMeshProUGUI>().text = "WINNER";
+                     goBlueTurn.GetComponent<TextMeshProUGUI>().text = "LOSER";
+                     goRedTurn.SetActive(true);
+                     goBlueTurn.SetActive(true);
+                     bDone = true;
+                 
+
+                }
+            }
+
+
+            //Check Game Draw
+            if (iTotalClickedButtons > (GameSettings.iMvalue * GameSettings.iNvalue))
+            {
+                WinSound.Play();
+                goRedTurn.GetComponent<TextMeshProUGUI>().text = "DRAW";
+                goBlueTurn.GetComponent<TextMeshProUGUI>().text = "DRAW";
                 goRedTurn.SetActive(true);
                 goBlueTurn.SetActive(true);
+                bDone = true;
             }
         }
 
@@ -108,6 +140,9 @@ public class GameManager : MonoBehaviour
         //Extra Temp Variables
         int iMtemp = iM;
         int iNtemp = iN;
+
+
+
 
         ///Check Horizontal
         //Check Horizontal Right
@@ -145,9 +180,12 @@ public class GameManager : MonoBehaviour
         //Check Win
         if (isum==GameSettings.iWinValue)
         {
+            
             GameWin = true;
             Debug.Log("Player " + iPlayerTurn + " Wins with " + isum + " in a row" );
         }
+
+
 
 
 
@@ -290,6 +328,18 @@ public class GameManager : MonoBehaviour
         }
 
 
+
+        //Check Draw
+        if(!GameWin)
+        {
+            if (iTotalClickedButtons == (GameSettings.iMvalue * GameSettings.iNvalue))
+            {
+                iTotalClickedButtons++;
+            }
+        }
+        
+
+
         //Change Turn
         if (iPlayerTurn == 1)
         {
@@ -303,18 +353,40 @@ public class GameManager : MonoBehaviour
 
     public void RestartLevel()
     {
-        GameWin = false;
-        SceneManager.LoadScene("002_GameScene");
+        asSoundEffects.Play();
+        StartCoroutine(RestartWait());
     }
 
     public void SettingsLevel()
     {
-        GameWin = false;
-        SceneManager.LoadScene("001_MainMenu");
+        asSoundEffects.Play();
+        StartCoroutine(BackWait());
     }
 
     public void ExitLevel()
     {
+        asSoundEffects.Play();
+        StartCoroutine(ExitWait());
+        
+    }
+
+    IEnumerator RestartWait()
+    {
+        yield return new WaitForSeconds(0.5f);
+        GameWin = false;
+        SceneManager.LoadScene("002_GameScene");
+    }
+
+    IEnumerator BackWait()
+    {
+        yield return new WaitForSeconds(0.5f);
+        GameWin = false;
+        SceneManager.LoadScene("001_MainMenu");
+    }
+
+    IEnumerator ExitWait()
+    {
+        yield return new WaitForSeconds (0.5f);
         Application.Quit();
     }
 

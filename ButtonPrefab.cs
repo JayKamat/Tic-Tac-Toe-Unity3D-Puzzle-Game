@@ -14,6 +14,9 @@ public class ButtonPrefab : MonoBehaviour {
     int iM;
     int iN;
 
+    //Public reference for Audio
+    public AudioSource asSoundEffect;
+
     // Use this for initialization
     void Start () {
     }
@@ -27,6 +30,11 @@ public class ButtonPrefab : MonoBehaviour {
     {
         if (!GameManager.GameWin)
         {
+            asSoundEffect.Play();
+
+            //Increment Clicked Buttons
+            GameManager.iTotalClickedButtons += 1;
+
             //Get the the position of the child being clicked in the Grid.
             goChild = transform.gameObject;
             iButtonSiblingIndex = goChild.transform.GetSiblingIndex();
