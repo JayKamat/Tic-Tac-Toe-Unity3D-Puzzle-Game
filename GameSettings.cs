@@ -56,7 +56,7 @@ public class GameSettings : MonoBehaviour {
             return;
         }
 
-        if (int.Parse(InputWin.text) > 0 && int.Parse(InputWin.text) <= int.Parse(InputN.text) || int.Parse(InputWin.text) <= int.Parse(InputM.text))
+        if (int.Parse(InputWin.text) > 0 && (int.Parse(InputWin.text) <= int.Parse(InputN.text) || int.Parse(InputWin.text) <= int.Parse(InputM.text)))
             iWinValue = int.Parse(InputWin.text);
         else
         {
